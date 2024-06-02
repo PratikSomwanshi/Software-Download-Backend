@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
-const airplaneRoute = require("./airplane.route");
+const downloadRoute = require("./download.route");
 
-router.use("/airplanes", airplaneRoute);
+router.use("/software", downloadRoute);
 
 module.exports = router;

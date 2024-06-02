@@ -1,40 +1,42 @@
+const { StatusCodes } = require("http-status-codes");
+const AppError = require("../utils/error/AppError");
+
 class CrudRepository {
     constructor(model) {
         this.model = model;
     }
 
     async create(data) {
-        const response = await this.model.create(data);
-        return response;
-    }
-
-    async get(id) {
-        const response = await this.model.findByPk(id);
-        return response;
+        const software = new this.model(data);
+        await software.save();
+        return software;
     }
 
     async getAll() {
-        const response = await this.model.findAll();
-        return response;
+        const software = await this.model.find();
+        return software;
     }
 
-    async update(data, id) {
-        const airplane = await this.model.findByPk(id);
-
-        airplane.set({
-            capacity: data.capacity,
-            modelNumber: data.modelNumber,
+    async update(id, data) {
+        const software = await this.model.findByIdAndUpdate(id, data, {
+            new: true,
+            runValidators: true,
         });
 
-        await airplane.save();
+        if (!software) {
+            return new AppError("Software not found", StatusCodes.BAD_REQUEST);
+        }
 
-        return airplane;
+        return software;
     }
 
     async delete(id) {
-        const airplane = await this.model.findByPk(id);
-        await airplane.destroy();
-        return airplane;
+        const software = await this.model.findByIdAndDelete(id);
+        if (!software) {
+            return new AppError("Software not found", StatusCodes.BAD_REQUEST);
+        }
+
+        return software;
     }
 }
 
