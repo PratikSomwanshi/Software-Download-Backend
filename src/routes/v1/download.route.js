@@ -23,12 +23,6 @@ const combinedStorage = multer.diskStorage({
 // Create multer middleware instance
 const upload = multer({ storage: combinedStorage });
 
-// http://localhost:8000/api/v1/software/image/***.png
-// router.post(
-//     "/image",
-
-// );
-
 // http://localhost:8000/api/v1/software
 router.get("/", SoftwareController.getAllSoftware);
 
@@ -48,5 +42,7 @@ router.delete("/", Authenticator, SoftwareController.deleteSoftware);
 
 // http://localhost:8000/api/v1/software/search (req.body -> "any string")
 router.post("/search", SoftwareController.getSoftware);
+
+router.get("/download/:id", SoftwareController.downloadSoftware);
 
 module.exports = router;

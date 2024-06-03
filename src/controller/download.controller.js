@@ -1,6 +1,8 @@
 const { StatusCodes } = require("http-status-codes");
+const fs = require("fs");
 const { SoftwareService } = require("../services");
 const { SuccessResponse, ErrorResponse } = require("../utils/common");
+const { Throttle } = require("stream-throttle");
 
 async function createSoftware(req, res) {
     try {
@@ -22,9 +24,7 @@ async function createSoftware(req, res) {
             image: `${req.protocol}://${req.get("host")}/uploads/images/${
                 req.files[0].filename
             }`,
-            fileUrl: `${req.protocol}://${req.get("host")}/uploads/files/${
-                req.files[1].filename
-            }`,
+            fileUrl: `upload/files/${req.files[1].filename}`,
             description,
             builtBy,
             price,
@@ -94,10 +94,44 @@ async function deleteSoftware(req, res) {
     }
 }
 
+async function downloadSoftware(req, res) {
+    try {
+        const { id } = req.params;
+        const file = await SoftwareService.downloadSoftware(id);
+        const downloadSpeedLimit = 5 * 1024 * 1024;
+
+        const filePath = file.fileUrl;
+
+        res.writeHead(StatusCodes.OK, {
+            "Content-Disposition": `attachment; filename="${file.name}"`,
+            "Content-Length": fs.statSync(filePath).size,
+        });
+
+        const fileStream = fs.createReadStream(filePath);
+
+        const throttle = new Throttle({ rate: downloadSpeedLimit });
+
+        fileStream.pipe(throttle).pipe(res);
+
+        fileStream.on("error", (err) => {
+            res.status(500).send("File error");
+        });
+
+        throttle.on("error", (err) => {
+            res.status(500).send("Throttle error");
+        });
+    } catch (error) {
+        console.log(error);
+        ErrorResponse.error = error;
+        return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
+    }
+}
+
 module.exports = {
     createSoftware,
     getAllSoftware,
     deleteSoftware,
     updateSoftware,
     getSoftware,
+    downloadSoftware,
 };

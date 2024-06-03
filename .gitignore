@@ -3,3 +3,6 @@ myLog.log
 node_modules
 .vscode
 myLog.log
+
+upload/files/*
+upload/images/*

@@ -1,7 +1,9 @@
 const { SoftwareRepository } = require("../repository");
 const AppError = require("../utils/error/AppError");
-const { StatusCodes } = require("http-status-codes");
+const { StatusCodes, getStatusCode } = require("http-status-codes");
 const { ErrorResponse, SuccessResponse } = require("../utils/common");
+const { Software } = require("../model");
+const fs = require("fs");
 
 const softwareRepository = new SoftwareRepository();
 
@@ -45,28 +47,27 @@ async function deleteSoftware(id) {
     }
 }
 
-async function createImage(req, res) {
+async function downloadSoftware(id) {
     try {
-        const softwareData = {
-            image_url: `${req.protocol}://${req.get("host")}/uploads/${
-                req.file.filename
-            }`,
-        };
+        const file = await Software.findById(id);
 
-        SuccessResponse.data = softwareData;
+        if (!file) {
+            throw new AppError("file not found", StatusCodes.NOT_FOUND);
+        }
 
-        return res.status(StatusCodes.CREATED).json(SuccessResponse);
+        // const filePath = file.fileUrl;
+
+        return file;
     } catch (error) {
-        ErrorResponse.error = error;
-        return res.status(StatusCodes.NOT_FOUND).json(ErrorResponse);
+        throw error;
     }
 }
 
 module.exports = {
     createSoftware,
-    createImage,
     getAllSoftware,
     deleteSoftware,
     updateSoftware,
     getSoftware,
+    downloadSoftware,
 };
