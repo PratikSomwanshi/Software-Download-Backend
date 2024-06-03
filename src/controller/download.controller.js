@@ -5,8 +5,6 @@ const { SuccessResponse, ErrorResponse } = require("../utils/common");
 async function createSoftware(req, res) {
     try {
         const {
-            image,
-            name,
             description,
             builtBy,
             price,
@@ -14,15 +12,19 @@ async function createSoftware(req, res) {
             latestVersion,
             platform,
             os,
+            name,
         } = req.body;
 
         const osArray = os.split(",").map((item) => item.trim());
         const platformArray = platform.split(",").map((item) => item.trim());
 
-        console.log(osArray);
         const data = {
-            image,
-            name,
+            image: `${req.protocol}://${req.get("host")}/uploads/images/${
+                req.files[0].filename
+            }`,
+            fileUrl: `${req.protocol}://${req.get("host")}/uploads/files/${
+                req.files[1].filename
+            }`,
             description,
             builtBy,
             price,
@@ -30,6 +32,7 @@ async function createSoftware(req, res) {
             latestVersion,
             platform: platformArray,
             os: osArray,
+            name,
         };
 
         const software = await SoftwareService.createSoftware(data);
@@ -37,6 +40,7 @@ async function createSoftware(req, res) {
 
         return res.status(StatusCodes.CREATED).json(SuccessResponse);
     } catch (error) {
+        console.log(error);
         ErrorResponse.error = error;
         return res.status(StatusCodes.BAD_REQUEST).json(ErrorResponse);
     }

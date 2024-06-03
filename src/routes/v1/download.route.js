@@ -6,30 +6,39 @@ const { SoftwareService } = require("../../services");
 const { SoftwareController } = require("../../controller");
 const { Authenticator } = require("../../middlewares");
 
-const storage = multer.diskStorage({
+const combinedStorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "upload/images");
+        // Determine the appropriate destination based on file type
+        if (file.mimetype.startsWith("image/")) {
+            cb(null, "upload/images/");
+        } else {
+            cb(null, "upload/files/");
+        }
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
+        cb(null, Date.now() + path.extname(file.originalname)); // Append extension
     },
 });
 
-const upload = multer({ storage: storage });
+// Create multer middleware instance
+const upload = multer({ storage: combinedStorage });
 
 // http://localhost:8000/api/v1/software/image/***.png
-router.post(
-    "/image",
-    Authenticator,
-    upload.single("image"),
-    SoftwareService.createImage
-);
+// router.post(
+//     "/image",
+
+// );
 
 // http://localhost:8000/api/v1/software
 router.get("/", SoftwareController.getAllSoftware);
 
 // http://localhost:8000/api/v1/software (req.body -> data: software object)
-router.post("/", Authenticator, SoftwareController.createSoftware);
+router.post(
+    "/",
+    Authenticator,
+    upload.array("files", 2),
+    SoftwareController.createSoftware
+);
 
 // http://localhost:8000/api/v1/software (req.body -> id: string, data: "any data to update")
 router.patch("/", Authenticator, SoftwareController.updateSoftware);

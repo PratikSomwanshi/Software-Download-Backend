@@ -10,6 +10,7 @@ const softwareSchema = new mongoose.Schema({
     latestVersion: { type: String, required: true },
     platform: [{ type: String, required: true }],
     os: [{ type: String, required: true }],
+    fileUrl: { type: String, required: true },
 });
 
 module.exports = mongoose.model("Software", softwareSchema);
