@@ -22,9 +22,9 @@ async function createSoftware(req, res) {
 
         const data = {
             image: `${req.protocol}://${req.get("host")}/uploads/images/${
-                req.files[0].filename
+                req.files["image"][0].filename
             }`,
-            fileUrl: `upload/files/${req.files[1].filename}`,
+            fileUrl: `upload/files/${req.files["file"][0].filename}`,
             description,
             builtBy,
             price,
@@ -72,7 +72,18 @@ async function getSoftware(req, res) {
 async function updateSoftware(req, res) {
     try {
         const { id, ...data } = req.body;
-        const software = await SoftwareService.updateSoftware(id, data);
+        const files = req.files;
+
+        const softwareData = {
+            ...data,
+            files,
+        };
+
+        const software = await SoftwareService.updateSoftware(
+            id,
+            req,
+            softwareData
+        );
         SuccessResponse.data = software;
         return res.status(StatusCodes.OK).json(SuccessResponse);
     } catch (error) {
