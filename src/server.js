@@ -1,6 +1,5 @@
 const express = require("express");
 const morgan = require("morgan");
-const path = require("path");
 
 const { ServerConfig, DBConnect } = require("./config");
 const apiRoutes = require("./routes");
@@ -15,7 +14,7 @@ app.use("/upload/images", express.static("upload/images"));
 
 app.use("/api", apiRoutes);
 
-app.listen(ServerConfig.PORT, async (req, res) => {
+app.listen(ServerConfig.PORT, async () => {
     console.log(`server running on port ${ServerConfig.PORT}`);
     console.log("connecting to database");
     await DBConnect();

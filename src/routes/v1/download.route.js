@@ -1,27 +1,9 @@
 const router = require("express").Router();
 const multer = require("multer");
 const path = require("path");
-const { StatusCodes } = require("http-status-codes");
-const { SoftwareService } = require("../../services");
+
 const { SoftwareController } = require("../../controller");
 const { Authenticator } = require("../../middlewares");
-
-// const combinedStorage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         // Determine the appropriate destination based on file type
-//         if (file.mimetype.startsWith("image/")) {
-//             cb(null, "upload/images/");
-//         } else {
-//             cb(null, "upload/files/");
-//         }
-//     },
-//     filename: function (req, file, cb) {
-//         cb(null, Date.now() + path.extname(file.originalname)); // Append extension
-//     },
-// });
-
-// // Create multer middleware instance
-// const upload = multer({ storage: combinedStorage });
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -45,7 +27,6 @@ router.get("/", SoftwareController.getAllSoftware);
 router.post(
     "/",
     Authenticator,
-    // upload.array("files", 2),
     upload.fields([{ name: "file" }, { name: "image" }]),
     SoftwareController.createSoftware
 );
